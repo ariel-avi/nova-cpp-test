@@ -21,4 +21,5 @@ TEST(JsonParser, read_file_into_vectors) {
     EXPECT_EQ(data[2].back(), 7);
     EXPECT_EQ(data[10].front(), 43);
     EXPECT_EQ(data[10].back(), 97);
+    ASSERT_TRUE(std::find(data[10].begin(), data[10].end(), 2147483647) != data[10].end());
 }

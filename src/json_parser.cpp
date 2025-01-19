@@ -36,7 +36,7 @@ json_parser::data_t json_parser::read() const
     file.close();
 
     auto pos = contents.find('[', 0);
-    while (true) {
+    do {
         if (const auto beg_pos = contents.find('[', pos + 1);
             beg_pos != std::string::npos) {
             if (const auto end_pos = contents.find(']', beg_pos + 1);
@@ -44,20 +44,15 @@ json_parser::data_t json_parser::read() const
                 auto int_contents = contents.substr(beg_pos + 1, end_pos - beg_pos - 1);
                 result.emplace_back(read_row(int_contents));
                 pos =  end_pos;
-                if (contents.find(',', pos) == std::string::npos) {
-                    break;
-                }
             } else {
                 throw std::runtime_error("json_parser::read() file parse error");
             }
         }
-    }
+    } while (contents.find(',', pos) != std::string::npos);
 
     if (const auto end_pos = contents.find(']', pos + 1);
         end_pos == std::string::npos) {
         throw std::runtime_error("json_parser::read(): invalid end char");
-    } else {
-        pos = end_pos;
     }
 
     return result;
