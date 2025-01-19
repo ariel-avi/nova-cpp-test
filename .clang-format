@@ -1,0 +1,9 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 100
+BreakBeforeBraces: Stroustrup
+AllowShortFunctionsOnASingleLine: None
+UseTab: Never
+SortIncludes: false
+NamespaceIndentation: All
+PointerAlignment: Left
