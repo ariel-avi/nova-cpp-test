@@ -3,7 +3,7 @@ name: Build and Test C++ Application
 on:
   push:
     branches:
-      - *
+      - "*"
 
 jobs:
   build_and_test:
