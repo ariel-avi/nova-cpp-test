@@ -7,7 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(resources)
 add_subdirectory(src)
-add_subdirectory(tests)
 
 add_executable(pipeline src/main.cpp)
 target_link_libraries(pipeline PUBLIC nova_lib)
+
+enable_testing()
+add_subdirectory(tests)

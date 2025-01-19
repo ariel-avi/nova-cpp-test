@@ -12,7 +12,6 @@ std::vector<int> json_parser::read_row(const std::string& raw_string)
     while (inner_beg_pos != std::string::npos) {
         const auto inner_end_pos = raw_string.find(',', inner_beg_pos + 1);
         auto int_str = raw_string.substr(inner_beg_pos, inner_end_pos - inner_beg_pos);
-        std::cout << int_str << ' ';
         if (int_str.empty()) {
             throw std::runtime_error("json_parser::read: empty string");
         }

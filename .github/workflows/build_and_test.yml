@@ -1,0 +1,37 @@
+name: Build and Test C++ Application
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake g++ ninja build-essential
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build the application
+        run: |
+          cmake --build build --parallel
+
+      - name: Run GoogleTest tests
+        run: |
+          cd build
+          ctest --output-on-failure
