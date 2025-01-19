@@ -16,7 +16,11 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ ninja build-essential
+          sudo apt install -y cmake g++ ninja build-essential clang-format
+
+      - name: Format
+        run: |
+          sh ./scripts/format.sh
 
       - name: Configure CMake
         run: |

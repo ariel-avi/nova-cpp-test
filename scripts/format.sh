@@ -1,2 +1,3 @@
 #!/bin/bash
-find . -name *.cpp -o -name *.h -exec clang-format -i {} \;
+set -e
+find src/ tests/ -name *.cpp -o -name *.h -exec clang-format -i {} \;
