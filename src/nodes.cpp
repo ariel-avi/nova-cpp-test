@@ -1,6 +1,7 @@
 #include "nodes.h"
 
 #include <ostream>
+#include <algorithm>
 
 #include "json_parser.h"
 
