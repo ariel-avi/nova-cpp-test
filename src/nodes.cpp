@@ -1,4 +1,7 @@
 #include "nodes.h"
+
+#include <ostream>
+
 #include "json_parser.h"
 
 
@@ -43,9 +46,29 @@ data_struct_t max_node::execute()
     const data_struct_t previous_result{previous_node_->execute()};
     data_struct_t result;
     for (auto& v : previous_result) {
-        result.push_back(std::vector<int>{{*std::max_element(v.begin(), v.end())}});
+        result.push_back(std::vector{{*std::max_element(v.begin(), v.end())}});
     }
     return result;
+}
+
+std::ostream& operator<<(std::ostream& os, const data_struct_t& data)
+{
+    for (auto& v : data) {
+        os << v << std::endl;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& data)
+{
+    auto it = data.begin();
+    while (it != data.end()) {
+        os << *it;
+        if (++it != data.end()) {
+            os << ' ';
+        }
+    }
+    return os;
 }
 
 rnd_node::rnd_node(const std::vector<int>& data_size, size_t generator_seed_value)

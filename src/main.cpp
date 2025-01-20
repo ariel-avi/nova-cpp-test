@@ -1,25 +1,24 @@
 #include <iostream>
+#include <ostream>
+#include <nodes.h>
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-int main(int argc, char** argv) {
-    // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the
-    // <b>lang</b> variable name to see how CLion can help you rename it.
-    auto lang = "C++";
-    std::cout << "Hello and welcome to " << lang << "!\n";
-
-    for (int i = 1; i <= 5; i++) {
-        // TIP Press <shortcut actionId="Debug"/> to start debugging your code.
-        // We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/>
-        // breakpoint for you, but you can always add more by pressing
-        // <shortcut actionId="ToggleLineBreakpoint"/>.
-        std::cout << "i = " << i << std::endl;
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+        return -1;
     }
 
+    data_node::ptr d_node = std::make_shared<data_node>(argv[1]);
+    auto data = d_node->execute();
+    std::vector<int> r_node_data_size(data.size());
+    for (int i = 0; i < data.size(); i++) {
+        r_node_data_size[i] = data[i].size();
+    }
+    rnd_node::ptr r_node = std::make_shared<rnd_node>(r_node_data_size, 0x5702135);
+    binary_node::ptr b_node = std::make_shared<binary_node>(d_node, r_node);
+    max_node::ptr m_node = std::make_shared<max_node>(b_node);
+    auto final_result = m_node->execute();
+    std::cout << final_result;
     return 0;
 }
-
-// TIP See CLion help at <a
-// href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>.
-//  Also, you can try interactive lessons for CLion by selecting
-//  'Help | Learn IDE Features' from the main menu.

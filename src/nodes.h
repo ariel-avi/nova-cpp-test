@@ -19,6 +19,10 @@ public:
 
 typedef std::vector<std::vector<int> > data_struct_t;
 
+std::ostream& operator<<(std::ostream& os, const data_struct_t& data);
+
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& data);
+
 class rnd_node : public base_node<data_struct_t> {
 public:
     explicit rnd_node(const std::vector<int>& data_size, size_t generator_seed_value);
@@ -59,6 +63,7 @@ public:
     explicit max_node(ptr previous_node);
 
     [[nodiscard]] data_struct_t execute() override;
+
 private:
     ptr previous_node_;
 };
