@@ -8,7 +8,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(GTest)
 
-add_executable(tests test_read_json.cpp)
+add_executable(tests tests.cpp)
 
 target_link_libraries(tests
         PRIVATE
