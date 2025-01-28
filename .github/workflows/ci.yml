@@ -80,10 +80,18 @@ jobs:
           path: |
             build/Release/pipeline.exe
 
-      - name: Upload build artifacts (Ubuntu, MacOS)
-        if: always() && matrix.os != 'windows-latest'
+      - name: Upload build artifacts (Ubuntu)
+        if: always() && matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.os }}
           path: |
             build/pipeline
+
+      - name: Upload build artifacts (MacOS)
+        if: always() && matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Build-${{ matrix.os }}
+          path: |
+            build/Release/pipeline
