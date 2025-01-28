@@ -41,19 +41,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install dependencies (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update
           sudo apt install -y cmake g++ build-essential
 
-      - name: Install dependencies
+      - name: Install dependencies (MacOS)
         if: matrix.os == 'macos-latest'
         run: |
           brew update
           brew install cmake
 
-      - name: Install dependencies
+      - name: Install dependencies (Windows)
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
@@ -70,7 +70,7 @@ jobs:
       - name: Run CTest
         run: |
           cd build
-          ctest --output-on-failure
+          ctest --output-on-failure -C Release --extra-verbose
 
       - name: Upload build artifacts
         if: always()
