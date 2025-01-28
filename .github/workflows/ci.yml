@@ -77,4 +77,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.os }}
-          path: build/
+          path: |
+            build/pipeline*  # Linux and macOS
+            build/Release/pipeline.exe  # Windows
