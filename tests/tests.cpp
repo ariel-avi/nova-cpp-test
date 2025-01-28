@@ -30,53 +30,63 @@ TEST(binary_node, sum_vectors)
 {
     const std::vector a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     const std::vector b = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    const std::vector<int> c = a + b;
-    ASSERT_EQ(c.size(), a.size());
-    for (int i : c) {
-        EXPECT_EQ(i, 11);
+
+    data_node::ptr a_node = std::make_shared<data_node>(a);
+    data_node::ptr b_node = std::make_shared<data_node>(b);
+    binary_node::ptr result_node_ptr = std::make_shared<binary_node>(a_node, b_node);
+    std::vector<int> result;
+    while (result_node_ptr->has_next()) {
+        result.push_back(result_node_ptr->next());
+        EXPECT_EQ(result.back(), 11);
     }
+    ASSERT_EQ(result.size(), a.size());
 }
 
-class constant_node : public base_node<data_struct_t> {
-public:
-    explicit constant_node() = default;
+struct max_node_test_inputs {
+    std::vector<int> inputs;
+    int expected_result;
 
-    data_struct_t execute() override
+    max_node_test_inputs(std::vector<int> vector, int i) : inputs(std::move(vector)),
+                                                           expected_result(i)
     {
-        return {
-            std::vector{1, 2, 3, 10, 2, 3},
-            std::vector{1, 2, 3, 1, 20, 3},
-            std::vector{1, 2, 3, 10, 20, 30},
-            std::vector{1, 2, 40, 10, 20, 30},
-            std::vector{1, 2, 40, 50, 20, 30},
-        };
     }
 };
 
-TEST(max_node, execute)
+class max_node_test_fixture : public ::testing::Test,
+                              public ::testing::WithParamInterface<max_node_test_inputs> {
+};
+
+TEST_P(max_node_test_fixture, find_max)
 {
-    constant_node::ptr c_node = std::make_shared<constant_node>();
-    max_node::ptr m_node = std::make_shared<max_node>(c_node);
-    auto result = m_node->execute();
-    ASSERT_EQ(result.size(), 5);
-    EXPECT_EQ(result[0].front(), 10);
-    EXPECT_EQ(result[1].front(), 20);
-    EXPECT_EQ(result[2].front(), 30);
-    EXPECT_EQ(result[3].front(), 40);
-    EXPECT_EQ(result[4].front(), 50);
+    data_node::ptr d_node = std::make_shared<data_node>(GetParam().inputs);
+    max_node::ptr m_node = std::make_shared<max_node>(d_node);
+    EXPECT_EQ(m_node->next(), GetParam().expected_result);
+    ASSERT_FALSE(m_node->has_next());
 }
+
+INSTANTIATE_TEST_SUITE_P(values,
+                         max_node_test_fixture,
+                         ::testing::Values(
+                             max_node_test_inputs(std::vector{1, 2, 3, 10, 2, 3},10),
+                             max_node_test_inputs(std::vector{1, 2, 3, 1, 20, 3},20),
+                             max_node_test_inputs(std::vector{1, 2, 3, 10, 20, 30},30),
+                             max_node_test_inputs(std::vector{1, 2, 40, 10, 20, 30},40),
+                             max_node_test_inputs(std::vector{1, 2, 40, 50, 20, 30},50)
+                         )
+    );
 
 TEST(node_chain, execute)
 {
-    data_node::ptr d_node = std::make_shared<data_node>(DATA_FILE);
-    auto data = d_node->execute();
-    std::vector<int> r_node_data_size(data.size());
-    for (int i = 0; i < data.size(); i++) {
-        r_node_data_size[i] = data[i].size();
+    json_parser parser{DATA_FILE};
+    data_struct_t data = parser.read();
+    data_struct_t final_result(data.size());
+    for (size_t i{0}; i < data.size(); ++i) {
+        data_node::ptr d_node = std::make_shared<data_node>(data[i]);
+        rnd_node::ptr r_node = std::make_shared<rnd_node>(0x5702135);
+        binary_node::ptr b_node = std::make_shared<binary_node>(d_node, r_node);
+        max_node::ptr m_node = std::make_shared<max_node>(b_node);
+        final_result[i].push_back(m_node->next());
+        ASSERT_FALSE(m_node->has_next());
     }
-    rnd_node::ptr r_node = std::make_shared<rnd_node>(r_node_data_size, 0x5702135);
-    binary_node::ptr b_node = std::make_shared<binary_node>(d_node, r_node);
-    max_node::ptr m_node = std::make_shared<max_node>(b_node);
-    auto final_result = m_node->execute();
     ASSERT_EQ(final_result.size(), 11);
 }
