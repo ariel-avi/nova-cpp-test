@@ -16,94 +16,74 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ build-essential clang-format
+          sudo apt install -y clang-format
 
       - name: Format
         run: |
           sh ./scripts/format.sh
 
-  build_and_test_ubuntu:
-    runs-on: ubuntu-latest
-    needs: check_formatting
+build_and_test:
+  name: Build and Test on ${{ matrix.os }}
+  runs-on: ${{ matrix.os }}
+  strategy:
+    matrix:
+      os: [ubuntu-latest, macos-latest, windows-latest]
+      cmake_generator: [Unix Makefiles, Xcode, "Visual Studio 17 2022"]
+      include:
+        - os: ubuntu-latest
+          cmake_generator: "Unix Makefiles"
+        - os: macos-latest
+          cmake_generator: "Xcode"
+        - os: windows-latest
+          cmake_generator: "Visual Studio 17 2022"
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y cmake g++ build-essential 
+    # Install dependencies (OS-specific)
+    - name: Install dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt update
+        sudo apt install -y cmake g++ build-essential
 
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    - name: Install dependencies
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew update
+        brew install cmake
 
-      - name: Build the application
-        run: |
-          cmake --build build --parallel
+    - name: Install dependencies
+      if: matrix.os == 'windows-latest'
+      shell: cmd
+      run: |
+        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
 
-      - name: Run GoogleTest tests
-        run: |
-          cd build
-          ctest --output-on-failure
+    # Configure CMake
+    - name: Configure CMake
+      shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
+      run: |
+        cmake -S . -B build -G "${{ matrix.cmake_generator }}" -DCMAKE_BUILD_TYPE=Release
 
-  build_and_test_macos:
-    runs-on: macos-latest
-    needs: check_formatting
+    # Build the application
+    - name: Build the application
+      shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
+      run: |
+        cmake --build build --config Release --parallel
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # Run tests using CTest
+    - name: Run CTest
+      shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
+      run: |
+        cd build
+        ctest --output-on-failure
 
-      - name: Install dependencies
-        run: |
-          brew update
-          brew install cmake
-
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build the application
-        run: |
-          cmake --build build --parallel
-
-      - name: Run GoogleTest tests
-        run: |
-          cd build
-          ctest --output-on-failure
-
-  build_and_test_windows:
-    runs-on: windows-latest
-    needs: check_formatting
-
-    steps:
-#      - uses: ilammy/msvc-dev-cmd@v1.4.1
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure CMake
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build the application
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          cmake --build build --config Release
-
-      - name: Run GoogleTest tests
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-          cd build/Release
-          ctest --output-on-failure
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: pipeline
-          path: build/Release/
+    # Upload build artifacts
+    - name: Upload build artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build-${{ matrix.os }}
+        path: build/
