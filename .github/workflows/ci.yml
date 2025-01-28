@@ -78,5 +78,5 @@ jobs:
         with:
           name: Build-${{ matrix.os }}
           path: |
-            build/pipeline*  # Linux and macOS
-            build/Release/pipeline.exe  # Windows
+            build/pipeline*
+            build/Release/pipeline.exe
