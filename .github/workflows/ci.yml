@@ -60,17 +60,14 @@ jobs:
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
 
       - name: Configure CMake
-        shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
         run: |
           cmake -S . -B build -G "${{ matrix.cmake_generator }}" -DCMAKE_BUILD_TYPE=Release
 
       - name: Build the application
-        shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
         run: |
           cmake --build build --config Release --parallel
 
       - name: Run CTest
-        shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
         run: |
           cd build
           ctest --output-on-failure
