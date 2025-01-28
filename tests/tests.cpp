@@ -72,7 +72,10 @@ INSTANTIATE_TEST_SUITE_P(values,
                              max_node_test_inputs(std::vector{1, 2, 3, 10, 20, 30},30),
                              max_node_test_inputs(std::vector{1, 2, 40, 10, 20, 30},40),
                              max_node_test_inputs(std::vector{1, 2, 40, 50, 20, 30},50)
-                         )
+                         ),
+                         [](const auto& info) {
+                            return "case_" + std::to_string(info.index);
+                         }
     );
 
 TEST(node_chain, execute)

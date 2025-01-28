@@ -7,6 +7,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(GTest)
+include(GoogleTest)
 
 add_executable(tests tests.cpp)
 
@@ -18,5 +19,4 @@ target_link_libraries(tests
         PUBLIC
         data_resources
 )
-
-add_test(NAME Tests COMMAND tests)
+gtest_discover_tests(tests)
