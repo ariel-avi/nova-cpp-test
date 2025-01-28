@@ -72,11 +72,18 @@ jobs:
           cd build
           ctest --output-on-failure -C Release --extra-verbose
 
-      - name: Upload build artifacts
-        if: always()
+      - name: Upload build artifacts (Windows)
+        if: always() && matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.os }}
           path: |
-            build/pipeline*
             build/Release/pipeline.exe
+
+      - name: Upload build artifacts (Ubuntu, MacOS)
+        if: always() && matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Build-${{ matrix.os }}
+          path: |
+            build/pipeline
